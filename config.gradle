@@ -1,0 +1,18 @@
+ext {  //extend
+    // false: 组件模式
+    // true ：集成模式
+    isModule = true
+    android = [
+            compileSdkVersion: 29,
+            buildToolsVersion: "29.0.1",
+            minSdkVersion    : 21,
+            targetSdkVersion : 29,
+    ]
+    andriodx_lib = "1.0.2"
+    dependencies = [
+            "appcompat"    : "androidx.appcompat:appcompat:${andriodx_lib}",
+            "recyclerview" : "androidx.recyclerview:recyclerview:1.0.0"
+    ]
+}
+
+
