@@ -9,8 +9,14 @@ import android.app.Application;
  * @package com.grass.mybaselib.base
  */
 public class BaseModuleInit implements IModuelInit {
+    public static Application mApplication;
+
     @Override
     public void init(Application application) {
+        this.mApplication = application;
+    }
 
+    public static Application getApplication(){
+        return mApplication;
     }
 }

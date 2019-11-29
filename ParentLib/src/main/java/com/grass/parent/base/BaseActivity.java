@@ -2,6 +2,7 @@ package com.grass.parent.base;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,14 +10,22 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.grass.parent.R;
+import com.grass.parent.bus.LiveBus;
+import com.grass.parent.utils.TUtil;
 import com.jakewharton.rxbinding3.view.RxView;
+import com.trello.rxlifecycle3.components.support.RxAppCompatActivity;
 
 import java.util.concurrent.TimeUnit;
 
@@ -26,9 +35,11 @@ import java.util.concurrent.TimeUnit;
  * @describe
  * @package com.grass.mybaselib.base
  */
-public abstract class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity<V extends ViewDataBinding,VM extends AbsViewModel> extends RxAppCompatActivity {
 
     LayoutInflater mLayoutInflater;
+
+    public VM mViewModel;
 
     //标题栏部分
     Toolbar mToolbar;
@@ -38,7 +49,9 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     //主体内容部分
     FrameLayout mFlContent;
-    public ViewDataBinding mBinding;
+    public V mBinding;
+
+    public int viewModelId;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,7 +69,29 @@ public abstract class BaseActivity extends AppCompatActivity {
         toolbarOperation();
         //页面主体内容操作
         contentOperation();
+        dataObserver();
+
     }
+
+    protected abstract void dataObserver();
+
+
+    protected <T> MutableLiveData<T> registerSubscriber(Object eventKey, Class<T> tClass) {
+
+        return registerSubscriber(eventKey, null, tClass);
+    }
+
+    protected <T> MutableLiveData<T> registerSubscriber(Object eventKey, String tag, Class<T> tClass) {
+        String event;
+        if (TextUtils.isEmpty(tag)) {
+            event = (String) eventKey;
+        } else {
+            event = eventKey + tag;
+        }
+//        eventKeys.add(event);
+        return LiveBus.getDefault().subscribe(eventKey, tag, tClass);
+    }
+
 
     /**
      * 页面主体内容操作
@@ -64,7 +99,42 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void contentOperation(){
         mBinding = DataBindingUtil.inflate(mLayoutInflater,getLayoutID(),mFlContent,false);
         mFlContent.addView(mBinding.getRoot());
+        //初始化viewModelId的id
+        viewModelId = initVariableId();
+        mViewModel = initViewModel();
+
+        if(mViewModel!=null){
+            mViewModel.mRepository.loadState.observe(this, observer);
+        }
+
     }
+
+    protected abstract VM initViewModel();
+
+    /**
+     * 状态页面监听
+     */
+    protected Observer observer = new Observer<String>() {
+        @Override
+        public void onChanged(@Nullable String state) {
+            if (!TextUtils.isEmpty(state)) {
+//                if (StateConstants.ERROR_STATE.equals(state)) {
+//                    showError(ErrorState.class, "2");
+//                } else if (StateConstants.NET_WORK_STATE.equals(state)) {
+//                    showError(ErrorState.class, "1");
+//                } else if (StateConstants.LOADING_STATE.equals(state)) {
+//                    showLoading();
+//                } else if (StateConstants.SUCCESS_STATE.equals(state)) {
+//                    showSuccess();
+//                } else if (StateConstants.NOT_DATA_STATE.equals(state)) {
+//                    showError(ErrorState.class, "0");
+//                }
+            }
+        }
+    };
+
+    //初始化id
+    protected abstract int initVariableId();
 
     //获得资源ID
     protected abstract int getLayoutID();
@@ -75,7 +145,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected  void toolbarOperation(){
         if(isShowTitle()){
             if(isCanBack()){
-                mLlLeftView.setOnClickListener(v -> onBackPressed());
+                mLlLeftView.setOnClickListener(v -> onLeftClick());
             }else {
                 mLlLeftView.setVisibility(View.GONE);
             }
@@ -130,7 +200,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         View view = mLayoutInflater.inflate(menuId, null);
         if(view instanceof ViewGroup){
-            new RuntimeException("餐单更结点必须是ViewGroup");
+            new RuntimeException("menu must be ViewGroup");
         }
         mLlMenus.setVisibility(View.VISIBLE);
         ViewGroup menu = (ViewGroup) view;
@@ -145,6 +215,14 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
         mLlMenus.addView(view);
     }
+
+    /**
+     * 左侧按钮点击
+     */
+    public void onLeftClick(){
+        onBackPressed();
+    }
+
 
     /**
      * 设置左侧控件
@@ -164,4 +242,14 @@ public abstract class BaseActivity extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+//        if (viewModel != null) {
+//            viewModel.removeRxBus();
+//        }
+        if(mBinding != null){
+            mBinding.unbind();
+        }
+    }
 }

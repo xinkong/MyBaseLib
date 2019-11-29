@@ -7,7 +7,7 @@
 
         <variable
             name="user"
-            type="com.grass.mybaselib.model.User" />
+            type="com.grass.mybaselib.vm.User" />
 
     </data>
 

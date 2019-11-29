@@ -1,0 +1,46 @@
+package com.grass.parent.base;
+
+import androidx.lifecycle.MutableLiveData;
+
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+
+/**
+ * @author huchao
+ * @time 2019/11/26
+ * @describe
+ * @package com.grass.parent.base
+ */
+public abstract class AbsRepository {
+
+    private CompositeDisposable mCompositeDisposable;
+
+    public MutableLiveData<String> loadState;
+
+
+    public AbsRepository() {
+        loadState = new MutableLiveData<>();
+    }
+
+    protected void postState(String state) {
+        if (loadState != null) {
+            loadState.postValue(state);
+        }
+
+    }
+
+
+    protected void addDisposable(Disposable disposable) {
+        if (mCompositeDisposable == null) {
+            mCompositeDisposable = new CompositeDisposable();
+        }
+        mCompositeDisposable.add(disposable);
+    }
+
+    public void unDisposable() {
+        if (mCompositeDisposable != null && mCompositeDisposable.isDisposed()) {
+            mCompositeDisposable.clear();
+        }
+    }
+
+}
