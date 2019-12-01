@@ -1,13 +1,15 @@
 package com.grass.mybaselib.network.interceptor;
 
-import com.code.mvvm.App;
-import com.code.mvvm.util.NetworkUtils;
-import com.squareup.okhttp.CacheControl;
-import com.squareup.okhttp.Interceptor;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+
+import com.grass.parent.init.BaseModuleInit;
+import com.grass.parent.utils.NetworkUtils;
 
 import java.io.IOException;
+
+import okhttp3.CacheControl;
+import okhttp3.Interceptor;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * @author：tqzhang on 18/11/28 11:31
@@ -16,13 +18,13 @@ public class CacheInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        if (!NetworkUtils.isNetworkAvailable(App.instance())) {
+        if (!NetworkUtils.isNetworkAvailable(BaseModuleInit.getApplication())) {
             request = request.newBuilder()
                     .cacheControl(CacheControl.FORCE_CACHE)
                     .build();
         }
         Response response = chain.proceed(request);
-        if (NetworkUtils.isNetworkAvailable(App.instance())) {
+        if (NetworkUtils.isNetworkAvailable(BaseModuleInit.getApplication())) {
             // 有网络时 设置缓存超时时间为0;
             int maxAge = 30;
             response.newBuilder()

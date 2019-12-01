@@ -2,21 +2,23 @@ package com.grass.parent.init;
 
 import android.app.Application;
 
+import com.grass.parent.utils.TUtil;
+
 /**
  * @author huchao
  * @time 2019/11/24
  * @describe
- * @package com.grass.mybaselib.base
+ * @package 初始化上线文Context
  */
-public class BaseModuleInit implements IModuelInit {
+public class BaseModuleInit {
     public static Application mApplication;
 
-    @Override
-    public void init(Application application) {
-        this.mApplication = application;
+    public static void init(Application application) {
+        mApplication = application;
     }
 
-    public static Application getApplication(){
+    public static Application getApplication() {
+        TUtil.checkNotNull(mApplication);
         return mApplication;
     }
 }
