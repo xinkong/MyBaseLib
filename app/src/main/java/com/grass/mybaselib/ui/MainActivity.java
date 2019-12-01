@@ -24,12 +24,13 @@ public class MainActivity extends BaseActivity<ActivityMain2Binding, MainMiewMod
 
 //        mBinding.setUser(u);
         mViewModel.getData();
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mViewModel.getData2();
-            }
-        },5000);
+        mViewModel.getUpdateInfo();
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                mViewModel.getData2();
+//            }
+//        },5000);
     }
 
     @Override
@@ -41,12 +42,12 @@ public class MainActivity extends BaseActivity<ActivityMain2Binding, MainMiewMod
                     }
                 });
 
-        registerSubscriber(Main2Repository.EVENT_KEY_HOME, User.class)
-                .observe(this, user -> {
-                    if (user != null) {
-                        mBinding.setUser(user);
-                    }
-                });
+//        registerSubscriber(Main2Repository.EVENT_KEY_HOME, User.class)
+//                .observe(this, user -> {
+//                    if (user != null) {
+//                        mBinding.setUser(user);
+//                    }
+//                });
     }
 
     @Override

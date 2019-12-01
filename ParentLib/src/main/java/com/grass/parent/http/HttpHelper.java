@@ -31,6 +31,7 @@ public class HttpHelper {
     private static String BASE_URL;
 
     private HttpHelper() {
+
     }
 
     public static HttpHelper getInstance() {

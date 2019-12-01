@@ -14,18 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 事件总线
- * <p>
- * <p>
- * LiveBus.getDefault().postEvent("LiveData","hi LiveData");
- * <p>
- * <p>
- * LiveBus.getDefault().subscribe("LiveData").observe(this, new Observer<Object>() {
- *
- * @Override public void onChanged(@Nullable Object o) {
- * Log.e("onChanged",((String)o));
- * }
- * });
- * @author：tqzhang on 18/9/11 17:22
  */
 public class LiveBus {
 

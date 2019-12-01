@@ -13,7 +13,6 @@ public class BaseRepository extends AbsRepository {
 
     protected ApiService apiService;
 
-
     public BaseRepository() {
         if (null == apiService) {
             apiService = HttpHelper.getInstance().create(ApiService.class);
