@@ -40,7 +40,7 @@ public class ToastUtils {
             } else {
                 oldMsg = s;
                 toast.setText(s);
-                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.setGravity(Gravity.BOTTOM, 0, 0);
                 toast.show();
             }
         }

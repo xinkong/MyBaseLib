@@ -3,14 +3,15 @@ package com.grass.parent.base;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -18,15 +19,14 @@ import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProviders;
 
 import com.grass.parent.R;
 import com.grass.parent.bus.LiveBus;
-import com.grass.parent.utils.TUtil;
+import com.grass.parent.config.StateConstants;
 import com.jakewharton.rxbinding3.view.RxView;
-import com.trello.rxlifecycle3.components.support.RxAppCompatActivity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  * @describe
  * @package com.grass.mybaselib.base
  */
-public abstract class BaseActivity<V extends ViewDataBinding,VM extends AbsViewModel> extends RxAppCompatActivity {
+public abstract class BaseActivity<V extends ViewDataBinding, VM extends AbsViewModel> extends AppCompatActivity {
 
     LayoutInflater mLayoutInflater;
 
@@ -50,16 +50,24 @@ public abstract class BaseActivity<V extends ViewDataBinding,VM extends AbsViewM
     //主体内容部分
     FrameLayout mFlContent;
     public V mBinding;
-
     public int viewModelId;
+    private List<Object> eventKeys = new ArrayList<>();
+
+    //加载数据
+    public FrameLayout mShowLoadingView;
+
+    //错误部分
+    FrameLayout mFlError;
+    TextView mTvErrorMsg;
+    Button mBtnRetry;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //保持竖屏
-        if(isVerticalScreen()){
+        if (isVerticalScreen()) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }else {
+        } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
         setContentView(R.layout.base_view);
@@ -70,6 +78,7 @@ public abstract class BaseActivity<V extends ViewDataBinding,VM extends AbsViewM
         //页面主体内容操作
         contentOperation();
         dataObserver();
+        pageLoadData();
 
     }
 
@@ -88,7 +97,7 @@ public abstract class BaseActivity<V extends ViewDataBinding,VM extends AbsViewM
         } else {
             event = eventKey + tag;
         }
-//        eventKeys.add(event);
+        eventKeys.add(event);
         return LiveBus.getDefault().subscribe(eventKey, tag, tClass);
     }
 
@@ -96,20 +105,19 @@ public abstract class BaseActivity<V extends ViewDataBinding,VM extends AbsViewM
     /**
      * 页面主体内容操作
      */
-    protected void contentOperation(){
-        mBinding = DataBindingUtil.inflate(mLayoutInflater,getLayoutID(),mFlContent,false);
+    protected void contentOperation() {
+        mBinding = DataBindingUtil.inflate(mLayoutInflater, getLayoutID(), mFlContent, false);
         mFlContent.addView(mBinding.getRoot());
         //初始化viewModelId的id
         viewModelId = initVariableId();
         mViewModel = initViewModel();
 
-        if(mViewModel!=null){
+        if (mViewModel != null) {
             mViewModel.mRepository.loadState.observe(this, observer);
         }
 
     }
 
-    protected abstract VM initViewModel();
 
     /**
      * 状态页面监听
@@ -118,20 +126,49 @@ public abstract class BaseActivity<V extends ViewDataBinding,VM extends AbsViewM
         @Override
         public void onChanged(@Nullable String state) {
             if (!TextUtils.isEmpty(state)) {
-//                if (StateConstants.ERROR_STATE.equals(state)) {
-//                    showError(ErrorState.class, "2");
-//                } else if (StateConstants.NET_WORK_STATE.equals(state)) {
-//                    showError(ErrorState.class, "1");
-//                } else if (StateConstants.LOADING_STATE.equals(state)) {
-//                    showLoading();
-//                } else if (StateConstants.SUCCESS_STATE.equals(state)) {
-//                    showSuccess();
-//                } else if (StateConstants.NOT_DATA_STATE.equals(state)) {
-//                    showError(ErrorState.class, "0");
-//                }
+                switch (state) {
+                    case StateConstants.SHOW_LOAD:
+                        showLoadingView();
+                        break;
+                    case StateConstants.SERVER_SUCCESS:
+                        hideLoadingView();
+                        break;
+                    case StateConstants.REQUESTER_ERROR:
+                        showErrorView(false);
+                        break;
+                    case StateConstants.NO_NET_WORK_ERROR:
+                        showErrorView(true);
+                        break;
+                }
             }
         }
     };
+
+    protected void showErrorView(boolean isNoNet) {
+        if(isNoNet){
+            mTvErrorMsg.setText("请检查网络连接");
+        }else {
+            mTvErrorMsg.setText("访问异常,请重试");
+        }
+        hideLoadingView();
+        mFlError.setVisibility(View.VISIBLE);
+    }
+
+
+    /**
+     * 显示加载页
+     */
+    public void showLoadingView() {
+        mShowLoadingView.setVisibility(View.VISIBLE);
+        mFlError.setVisibility(View.GONE);
+    }
+
+    public void hideLoadingView() {
+        mShowLoadingView.setVisibility(View.GONE);
+        mFlError.setVisibility(View.GONE);
+    }
+
+    protected abstract VM initViewModel();
 
     //初始化id
     protected abstract int initVariableId();
@@ -139,17 +176,25 @@ public abstract class BaseActivity<V extends ViewDataBinding,VM extends AbsViewM
     //获得资源ID
     protected abstract int getLayoutID();
 
+    //页面加载数据
+    protected abstract void pageLoadData();
+
+    //重试
+    public void onRetry() {
+        pageLoadData();
+    }
+
     /**
      * 标题栏操作
      */
-    protected  void toolbarOperation(){
-        if(isShowTitle()){
-            if(isCanBack()){
+    protected void toolbarOperation() {
+        if (isShowTitle()) {
+            if (isCanBack()) {
                 mLlLeftView.setOnClickListener(v -> onLeftClick());
-            }else {
+            } else {
                 mLlLeftView.setVisibility(View.GONE);
             }
-        }else {
+        } else {
             mToolbar.setVisibility(View.GONE);
         }
     }
@@ -167,39 +212,55 @@ public abstract class BaseActivity<V extends ViewDataBinding,VM extends AbsViewM
 
         mFlContent = findViewById(R.id.base_content);
 
+        mShowLoadingView = findViewById(R.id.layout_loding);
+
+        //错误类容
+        mFlError = findViewById(R.id.layout_error);
+        mTvErrorMsg = findViewById(R.id.error_tv_msg);
+        mBtnRetry = findViewById(R.id.error_btn_retry);
+        //重试
+        RxView.clicks(mBtnRetry)
+                .throttleFirst(2, TimeUnit.SECONDS)
+                .subscribe(v -> {
+                    onRetry();
+                });
+
     }
 
     /**
      * 设置标题
      */
-    public void setTitle(String title){
+    public void setTitle(String title) {
         mTvTitle.setText(title);
     }
 
     /**
      * 是否包含标题栏
+     *
      * @return
      */
-    public boolean isShowTitle(){
+    public boolean isShowTitle() {
         return true;
     }
 
     /**
      * 页面是否可放回
+     *
      * @return
      */
-    public boolean isCanBack(){
+    public boolean isCanBack() {
         return true;
     }
 
     /**
      * 设置菜单 给出一个资源ID
+     *
      * @param menuId
      */
-    public void setMenu(int menuId){
+    public void setMenu(int menuId) {
 
         View view = mLayoutInflater.inflate(menuId, null);
-        if(view instanceof ViewGroup){
+        if (view instanceof ViewGroup) {
             new RuntimeException("menu must be ViewGroup");
         }
         mLlMenus.setVisibility(View.VISIBLE);
@@ -209,7 +270,7 @@ public abstract class BaseActivity<V extends ViewDataBinding,VM extends AbsViewM
             item.setTag(i);
             RxView.clicks(item)
                     .throttleFirst(2, TimeUnit.SECONDS)//2秒钟内只允许点击1次
-                    .subscribe(v ->{
+                    .subscribe(v -> {
                         onMenuItemClick((Integer) item.getTag());
                     });
         }
@@ -219,7 +280,7 @@ public abstract class BaseActivity<V extends ViewDataBinding,VM extends AbsViewM
     /**
      * 左侧按钮点击
      */
-    public void onLeftClick(){
+    public void onLeftClick() {
         onBackPressed();
     }
 
@@ -227,29 +288,36 @@ public abstract class BaseActivity<V extends ViewDataBinding,VM extends AbsViewM
     /**
      * 设置左侧控件
      */
-    public void setLeftView(int layoutId){
+    public void setLeftView(int layoutId) {
         mLlLeftView.removeAllViews();
         View view = mLayoutInflater.inflate(layoutId, mLlLeftView, false);
         mLlLeftView.addView(view);
     }
 
-    public void onMenuItemClick(int position){}
+    public void onMenuItemClick(int position) {
+    }
+
     /**
      * 界面是否是竖屏显示
+     *
      * @return true 默认竖屏 false 横屏
      */
-    public boolean isVerticalScreen(){
+    public boolean isVerticalScreen() {
         return true;
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        if (viewModel != null) {
-//            viewModel.removeRxBus();
-//        }
-        if(mBinding != null){
+        clearEvent();
+        if (mBinding != null) {
             mBinding.unbind();
+        }
+    }
+
+    protected void clearEvent() {
+        for (Object eventKey : eventKeys) {
+            LiveBus.getDefault().clear(eventKey);
         }
     }
 }

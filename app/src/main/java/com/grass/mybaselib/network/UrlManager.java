@@ -1,6 +1,5 @@
 package com.grass.mybaselib.network;
 
-import android.content.SharedPreferences;
 import android.text.TextUtils;
 
 import com.grass.mybaselib.app.AppConfig;
@@ -13,8 +12,6 @@ import com.grass.parent.utils.SharePrefsUtils;
  * @package com.grass.mybaselib.network
  */
 public class UrlManager {
-    public String baseUrl;
-
     //正式环境
     public static final String RELEASE = "https://wuliu.pinpianyi.com/";
     //alpha环境
@@ -29,11 +26,9 @@ public class UrlManager {
 
     public String getBaseUrl() {
         String selUrl = SharePrefsUtils.getInstance().getString(AppConfig.Spkey.SELECTURL,"");
-        if(TextUtils.isEmpty(selUrl)){
-            baseUrl = DEV3;
-        }else {
-            baseUrl = selUrl;
+        if(!TextUtils.isEmpty(selUrl)) {
+            return selUrl;
         }
-        return baseUrl;
+        return BETA;
     }
 }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:id="@+id/layout_loding"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:background="@android:color/white"
+             android:visibility="gone">
+             
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        >
+
+       <ProgressBar
+           android:id="@+id/pb_load_view"
+           android:layout_centerInParent="true"
+           android:layout_width="@dimen/dp_45"
+           android:layout_height="@dimen/dp_45"/>
+
+        <TextView
+            android:id="@+id/loading_view_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/pb_load_view"
+            android:layout_centerHorizontal="true"
+            android:textSize="@dimen/dp_16"
+            android:layout_marginTop="@dimen/dp_10"
+            android:text="加载中..."/>
+
+    </RelativeLayout>
+
+
+</FrameLayout>

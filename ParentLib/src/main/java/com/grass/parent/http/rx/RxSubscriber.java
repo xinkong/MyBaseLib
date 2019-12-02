@@ -1,8 +1,11 @@
-package com.grass.mybaselib.network.rx;
+package com.grass.parent.http.rx;
 
+
+import androidx.lifecycle.MutableLiveData;
 
 import com.google.gson.JsonParseException;
-import com.grass.mybaselib.network.ServerException;
+import com.grass.parent.config.StateConstants;
+import com.grass.parent.http.ServerException;
 import com.grass.parent.utils.NetworkUtils;
 import com.grass.parent.utils.ToastUtils;
 
@@ -16,19 +19,35 @@ import io.reactivex.subscribers.DisposableSubscriber;
 import retrofit2.HttpException;
 
 /**
- * @author tqzhang
+ *
  */
 public abstract class RxSubscriber<T> extends DisposableSubscriber<T> {
 
+    private boolean isShowProgress = false;
+    private boolean isDefaultShowLoadPage = true;
+    public MutableLiveData<String> mLoadState;
 
-    public RxSubscriber() {
+    public RxSubscriber(MutableLiveData<String> loadState) {
+        this(loadState, false);
+    }
+
+    public RxSubscriber(MutableLiveData<String> loadState, boolean isShowProgress) {
+        this(loadState, isShowProgress, true);
+    }
+
+    public RxSubscriber(MutableLiveData<String> loadState, boolean isShowProgress, boolean isDefaultShowLoadPage) {
         super();
+        this.isShowProgress = isShowProgress;
+        this.mLoadState = loadState;
+        this.isDefaultShowLoadPage = isDefaultShowLoadPage;
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        showLoading();
+        if (isDefaultShowLoadPage) {
+            showLoading();
+        }
         if (!NetworkUtils.isNetworkAvailable()) {
             onNoNetWork();
             cancel();
@@ -44,15 +63,19 @@ public abstract class RxSubscriber<T> extends DisposableSubscriber<T> {
     }
 
     protected void showLoading() {
-
-    }
-
-    protected void showProgress() {
-
+        if (mLoadState != null) {
+            if (isShowProgress) {
+                mLoadState.postValue(StateConstants.SHOW_DIALOG);
+            } else {
+                mLoadState.postValue(StateConstants.SHOW_LOAD);
+            }
+        }
     }
 
     protected void onNoNetWork() {
-
+        if (mLoadState != null) {
+            mLoadState.postValue(StateConstants.NO_NET_WORK_ERROR);
+        }
     }
 
     @Override
@@ -76,12 +99,19 @@ public abstract class RxSubscriber<T> extends DisposableSubscriber<T> {
         } else {
             message = "未知错误";
         }
-        ToastUtils.showToast(message);
+        if (!isShowProgress) {
+            if (mLoadState != null) {
+                mLoadState.postValue(StateConstants.REQUESTER_ERROR);
+            }
+        }else {
+            ToastUtils.showToast(message);
+        }
         onFailure(message, code);
     }
 
     @Override
     public void onNext(T t) {
+        mLoadState.postValue(StateConstants.SERVER_SUCCESS);
         onSuccess(t);
     }
 
@@ -97,5 +127,8 @@ public abstract class RxSubscriber<T> extends DisposableSubscriber<T> {
      *
      * @param msg
      */
-    public abstract void onFailure(String msg, int code);
+    public void onFailure(String msg, int code) {
+    }
+
+    ;
 }

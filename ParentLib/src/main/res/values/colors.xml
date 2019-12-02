@@ -4,6 +4,7 @@
     <color name="line">#d9e0e3</color>
     <!--页面整体背景色-->
     <color name="page_bg">#F6F6F6</color>
+    <color name="col_575757">#575757</color>
     <color name="col_e44d35">#e44d35</color>
     <color name="col_ffffff">#ffffff</color>
     <color name="col_262626">#262626</color>

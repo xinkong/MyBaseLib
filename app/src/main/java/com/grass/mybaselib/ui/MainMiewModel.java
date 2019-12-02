@@ -23,7 +23,14 @@ public class MainMiewModel extends AbsViewModel<MainRepository> {
         mRepository.getData();
     }
 
+    public void getData2(){
+        mRepository.getData2();
+    }
+
     public void getUpdateInfo(){
         mRepository.getUpdateInfo();
+    }
+    public void getUpdateInfo2(){
+        mRepository.getUpdateInfo2();
     }
 }
