@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -20,6 +21,7 @@ import androidx.databinding.ViewDataBinding;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
+import com.grass.notchscreenlib.NotchScreenManager;
 import com.grass.parent.R;
 import com.grass.parent.bus.LiveBus;
 import com.grass.parent.config.StateConstants;
@@ -70,6 +72,11 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends AbsView
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
+        if(isFullScreen()){
+            // 设置Activity全屏
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            NotchScreenManager.getInstance().setDisplayInNotch(this);
+        }
         setContentView(R.layout.base_view);
         //初始化公共组件
         initCommentView();
@@ -81,6 +88,8 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends AbsView
         pageLoadData();
 
     }
+
+
 
     protected abstract void dataObserver();
 
@@ -115,6 +124,8 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends AbsView
         if (mViewModel != null) {
             mViewModel.mRepository.loadState.observe(this, observer);
         }
+
+//        mBinding.setVariable(viewModelId,mViewModel);
 
     }
 
@@ -306,6 +317,13 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends AbsView
         return true;
     }
 
+    /**
+     * 是否是全屏显示
+     * @return true 全屏 false 不是
+     */
+    protected boolean isFullScreen(){
+        return false;
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();

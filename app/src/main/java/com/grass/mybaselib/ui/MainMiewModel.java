@@ -3,8 +3,11 @@ package com.grass.mybaselib.ui;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.Observable;
+import androidx.databinding.ObservableField;
 
 import com.grass.mybaselib.rep.MainRepository;
+import com.grass.mybaselib.vm.User;
 import com.grass.parent.base.AbsViewModel;
 
 /**
@@ -14,6 +17,7 @@ import com.grass.parent.base.AbsViewModel;
  * @package com.grass.mybaselib.ui
  */
 public class MainMiewModel extends AbsViewModel<MainRepository> {
+
 
     public MainMiewModel(@NonNull Application application) {
         super(application);

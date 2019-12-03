@@ -12,6 +12,9 @@ import com.grass.parent.bus.LiveBus;
 import com.grass.parent.http.rx.RxSchedulers;
 import com.grass.parent.utils.OnlyKeyUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author huchao
  * @time 2019/11/26
@@ -56,9 +59,12 @@ public class MainRepository extends BaseRepository {
     }
 
     public void getData() {
-        LiveBus.getDefault().postEvent(EVENT_KEY_HOME, null, new User("ada", "xxx"));
+
+        List<User> users = new ArrayList<>();
+        users.add(new User("ass","dd"));
+        postData(EVENT_KEY_HOME,users);
     }
     public void getData2() {
-        LiveBus.getDefault().postEvent(EVENT_KEY_HOME, null, new User("第二个界面", "第二个界面"));
+        LiveBus.getDefault().postEvent(EVENT_KEY_HOME, new User("第二个界面", "第二个界面"));
     }
 }

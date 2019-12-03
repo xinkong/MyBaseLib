@@ -2,7 +2,6 @@ package com.grass.mybaselib.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -12,10 +11,11 @@ import androidx.lifecycle.ViewModelProviders;
 import com.grass.mybaselib.BR;
 import com.grass.mybaselib.R;
 import com.grass.mybaselib.databinding.ActivityMain2Binding;
-import com.grass.mybaselib.vm.User;
-import com.grass.mybaselib.rep.Main2Repository;
 import com.grass.mybaselib.rep.MainRepository;
+import com.grass.mybaselib.vm.User;
 import com.grass.parent.base.BaseActivity;
+
+import java.util.List;
 
 public class MainActivity extends BaseActivity<ActivityMain2Binding, MainMiewModel> {
     @Override
@@ -27,13 +27,17 @@ public class MainActivity extends BaseActivity<ActivityMain2Binding, MainMiewMod
 
     @Override
     protected void dataObserver() {
-        registerSubscriber(MainRepository.EVENT_KEY_HOME, User.class)
-                .observe(this, user -> {
-                    if (user != null) {
-                        mBinding.setUser(user);
+//        registerSubscriber(MainRepository.EVENT_KEY_HOME, User.class)
+//                .observe(this, user -> {
+//                    if (user != null) {
+//                        mBinding.setUser(user);
+//                    }
+//                });
 
-                    }
-                });
+        registerSubscriber(MainRepository.EVENT_KEY_HOME, List.class).observe(this, list -> {
+            User user = (User) list.get(0);
+            mBinding.setUser(user);
+        });
 
     }
 
@@ -70,7 +74,16 @@ public class MainActivity extends BaseActivity<ActivityMain2Binding, MainMiewMod
     @Override
     protected void pageLoadData() {
         mViewModel.getData();
-        mViewModel.getUpdateInfo();
+//        mViewModel.getUpdateInfo();
     }
 
+    @Override
+    public boolean isShowTitle() {
+        return false;
+    }
+
+    @Override
+    protected boolean isFullScreen() {
+        return true;
+    }
 }

@@ -9,6 +9,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -61,6 +62,18 @@ public class LiveBus {
         return (MutableLiveData<T>) mLiveBus.get(key);
     }
 
+//    public List<T> MutableLiveData<> subscribe(Object eventKey, String tag, Class<T> tClass) {
+//        String key = mergeEventKey(eventKey, tag);
+//        if (!mLiveBus.containsKey(key)) {
+//            mLiveBus.put(key, new LiveBusData<>(true));
+//        } else {
+//            LiveBusData liveBusData = mLiveBus.get(key);
+//            liveBusData.isFirstSubscribe = false;
+//        }
+//
+//        return (MutableLiveData<T>) mLiveBus.get(key);
+//    }
+
     public <T> MutableLiveData<T> postEvent(Object eventKey, T value) {
         return postEvent(eventKey, null, value);
     }
@@ -70,6 +83,7 @@ public class LiveBus {
         mutableLiveData.postValue(value);
         return mutableLiveData;
     }
+
 
 
     public static class LiveBusData<T> extends MutableLiveData<T> {
