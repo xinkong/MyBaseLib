@@ -3,6 +3,7 @@ package com.grass.mybaselib.app;
 import android.app.Application;
 
 import com.grass.mybaselib.network.UrlManager;
+import com.grass.parent.base.BaseApplication;
 import com.grass.parent.http.HttpHelper;
 import com.grass.parent.init.BaseModuleInit;
 
@@ -12,7 +13,7 @@ import com.grass.parent.init.BaseModuleInit;
  * @describe
  * @package com.grass.mybaselib.app
  */
-public class BaseApplication extends Application {
+public class MyApplication extends BaseApplication {
 
     public static Application mApp;
 
@@ -24,7 +25,6 @@ public class BaseApplication extends Application {
     }
 
     private void initAppParams() {
-        BaseModuleInit.init(this);
         new HttpHelper.Builder(this)
                 .initOkHttp()
                 .createRetrofit(new UrlManager().getBaseUrl())

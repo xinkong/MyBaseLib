@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  * @describe
  * @package com.grass.mybaselib.base
  */
-public abstract class BaseActivity<V extends ViewDataBinding, VM extends AbsViewModel> extends AppCompatActivity {
+public abstract class BaseActivity<VM extends AbsViewModel> extends AppCompatActivity {
 
     LayoutInflater mLayoutInflater;
 
@@ -51,8 +51,6 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends AbsView
 
     //主体内容部分
     FrameLayout mFlContent;
-    public V mBinding;
-    public int viewModelId;
     private List<Object> eventKeys = new ArrayList<>();
 
     //加载数据
@@ -115,18 +113,13 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends AbsView
      * 页面主体内容操作
      */
     protected void contentOperation() {
-        mBinding = DataBindingUtil.inflate(mLayoutInflater, getLayoutID(), mFlContent, false);
-        mFlContent.addView(mBinding.getRoot());
-        //初始化viewModelId的id
-        viewModelId = initVariableId();
+        View view = mLayoutInflater.inflate(getLayoutID(),mFlContent,false);
+        mFlContent.addView(view);
         mViewModel = initViewModel();
 
         if (mViewModel != null) {
             mViewModel.mRepository.loadState.observe(this, observer);
         }
-
-//        mBinding.setVariable(viewModelId,mViewModel);
-
     }
 
 
@@ -181,9 +174,6 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends AbsView
 
     protected abstract VM initViewModel();
 
-    //初始化id
-    protected abstract int initVariableId();
-
     //获得资源ID
     protected abstract int getLayoutID();
 
@@ -232,9 +222,7 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends AbsView
         //重试
         RxView.clicks(mBtnRetry)
                 .throttleFirst(2, TimeUnit.SECONDS)
-                .subscribe(v -> {
-                    onRetry();
-                });
+                .subscribe(v -> onRetry());
 
     }
 
@@ -328,9 +316,9 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends AbsView
     protected void onDestroy() {
         super.onDestroy();
         clearEvent();
-        if (mBinding != null) {
-            mBinding.unbind();
-        }
+//        if (mBinding != null) {
+//            mBinding.unbind();
+//        }
     }
 
     protected void clearEvent() {

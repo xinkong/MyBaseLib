@@ -1,20 +1,16 @@
 package com.grass.mybaselib.ui;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProviders;
-
 import android.os.Bundle;
 import android.view.View;
 
-import com.grass.mybaselib.BR;
+import androidx.lifecycle.ViewModelProviders;
+
 import com.grass.mybaselib.R;
-import com.grass.mybaselib.databinding.ActivityMain3Binding;
 import com.grass.mybaselib.rep.MainRepository;
 import com.grass.mybaselib.vm.User;
-import com.grass.parent.base.AbsViewModel;
 import com.grass.parent.base.BaseActivity;
 
-public class SecondActivity extends BaseActivity<ActivityMain3Binding,MainMiewModel> {
+public class SecondActivity extends BaseActivity<MainMiewModel> {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +24,7 @@ public class SecondActivity extends BaseActivity<ActivityMain3Binding,MainMiewMo
         registerSubscriber(MainRepository.EVENT_KEY_HOME, User.class)
                 .observe(this, user -> {
                     if (user != null) {
-                        mBinding.setUser(user);
+//                        mBinding.setUser(user);
                     }
                 });
     }
@@ -45,11 +41,6 @@ public class SecondActivity extends BaseActivity<ActivityMain3Binding,MainMiewMo
     @Override
     protected MainMiewModel initViewModel() {
         return ViewModelProviders.of(this).get(MainMiewModel.class);
-    }
-
-    @Override
-    protected int initVariableId() {
-        return BR.user;
     }
 
     @Override

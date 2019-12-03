@@ -8,7 +8,7 @@ import com.grass.parent.utils.TUtil;
  * @author huchao
  * @time 2019/11/24
  * @describe
- * @package 初始化上线文Context
+ * @package 初始化上下文Context
  */
 public class BaseModuleInit {
     public static Application mApplication;

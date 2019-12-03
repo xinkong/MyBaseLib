@@ -4,11 +4,13 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.grass.parent.utils.TUtil;
 
 
-public class AbsViewModel<T extends AbsRepository> extends AndroidViewModel {
+public class AbsViewModel<T extends AbsRepository> extends AndroidViewModel{
 
     public T mRepository;
 

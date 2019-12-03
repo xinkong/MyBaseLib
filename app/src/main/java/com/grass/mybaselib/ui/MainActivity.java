@@ -4,20 +4,25 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.lifecycle.ViewModelProviders;
 
-import com.grass.mybaselib.BR;
 import com.grass.mybaselib.R;
-import com.grass.mybaselib.databinding.ActivityMain2Binding;
+import com.grass.mybaselib.base.BaseTestActivity;
 import com.grass.mybaselib.rep.MainRepository;
 import com.grass.mybaselib.vm.User;
-import com.grass.parent.base.BaseActivity;
 
 import java.util.List;
 
-public class MainActivity extends BaseActivity<ActivityMain2Binding, MainMiewModel> {
+import butterknife.BindView;
+
+public class MainActivity extends BaseTestActivity<MainMiewModel> {
+
+    @BindView(R.id.tv_name)
+    TextView tv_name;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,16 +32,12 @@ public class MainActivity extends BaseActivity<ActivityMain2Binding, MainMiewMod
 
     @Override
     protected void dataObserver() {
-//        registerSubscriber(MainRepository.EVENT_KEY_HOME, User.class)
-//                .observe(this, user -> {
-//                    if (user != null) {
-//                        mBinding.setUser(user);
-//                    }
-//                });
 
+//
         registerSubscriber(MainRepository.EVENT_KEY_HOME, List.class).observe(this, list -> {
             User user = (User) list.get(0);
-            mBinding.setUser(user);
+//            mBinding.setViewmodel(user);
+            tv_name.setText(user.name);
         });
 
     }
@@ -50,11 +51,6 @@ public class MainActivity extends BaseActivity<ActivityMain2Binding, MainMiewMod
         return ViewModelProviders.of(this).get(MainMiewModel.class);
     }
 
-
-    @Override
-    protected int initVariableId() {
-        return BR.user;
-    }
 
     @Override
     public void onMenuItemClick(int position) {
@@ -79,7 +75,7 @@ public class MainActivity extends BaseActivity<ActivityMain2Binding, MainMiewMod
 
     @Override
     public boolean isShowTitle() {
-        return false;
+        return true;
     }
 
     @Override
